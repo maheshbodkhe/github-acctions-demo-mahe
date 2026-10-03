@@ -1,0 +1,25 @@
+name: Mahe CD Workflow
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd ~/github-acctions-demo-mahe
+            git pull origin main
+            docker compose pull
+            docker compose up -d
